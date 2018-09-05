@@ -91,6 +91,21 @@ public class AndroidWifiModule extends ReactContextBaseJavaModule {
 		}
 	}
 
+  // Returns a promise that resolves a boolean of wether or not the canWrite
+  // permission has been granted
+  @ReactMethod
+  public void checkCanWrite(Promise promise) {
+      System.out.println("CHECKING CAN WRITE");
+
+      boolean canWrite = true;
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        canWrite = Settings.System.canWrite(context);
+      }
+
+      promise.resolve(canWrite);
+  }
+
+
 	//Method to force wifi usage if the user needs to send requests via wifi
 	//if it does not have internet connection. Useful for IoT applications, when
 	//the app needs to communicate and send requests to a device that have no
