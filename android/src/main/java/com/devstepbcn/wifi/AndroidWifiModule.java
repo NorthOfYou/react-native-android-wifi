@@ -37,6 +37,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.facebook.react.bridge.Promise;
+
 public class AndroidWifiModule extends ReactContextBaseJavaModule {
 
 	//WifiManager Instance
