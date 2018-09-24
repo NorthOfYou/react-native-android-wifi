@@ -67,7 +67,7 @@ public class AndroidWifiModule extends ReactContextBaseJavaModule {
 
 			for (ScanResult result: results) {
 				JSONObject wifiObject = new JSONObject();
-				if(!result.SSID.equals("")){
+				if(result.SSID != null && !result.SSID.equals("")){
 					try {
             wifiObject.put("SSID", result.SSID);
             wifiObject.put("BSSID", result.BSSID);
