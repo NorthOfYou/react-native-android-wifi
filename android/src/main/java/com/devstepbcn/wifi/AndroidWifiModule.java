@@ -114,16 +114,16 @@ public class AndroidWifiModule extends ReactContextBaseJavaModule {
 
 	//Method to force wifi usage if the user needs to send requests via wifi
 	//if it does not have internet connection. Useful for IoT applications, when
-	//the app needs to communicate and send requests to a device that have no 
+	//the app needs to communicate and send requests to a device that have no
 	//internet connection via wifi.
 
 	//Receives a boolean to enable forceWifiUsage if true, and disable if false.
-	//Is important to enable only when communicating with the device via wifi 
+	//Is important to enable only when communicating with the device via wifi
 	//and remember to disable it when disconnecting from device.
 	@ReactMethod
 	public void forceWifiUsage(boolean useWifi) {
         boolean canWriteFlag = false;
-		
+
         if (useWifi) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N || Build.VERSION.RELEASE.toString().equals("6.0.1")) {
@@ -148,25 +148,28 @@ public class AndroidWifiModule extends ReactContextBaseJavaModule {
                     //set the transport type do WIFI
                     builder.addTransportType(NetworkCapabilities.TRANSPORT_WIFI);
 
-
-                    manager.requestNetwork(builder.build(), new ConnectivityManager.NetworkCallback() {
-                        @Override
-                        public void onAvailable(Network network) {
-                            try {
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                    manager.bindProcessToNetwork(network);
-                                } else {
-                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                        //This method was deprecated in API level 23
-                                        ConnectivityManager.setProcessDefaultNetwork(network);
-                                    }
-                                }
-                                manager.unregisterNetworkCallback(this);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    });
+                    try {
+		                    manager.requestNetwork(builder.build(), new ConnectivityManager.NetworkCallback() {
+		                        @Override
+		                        public void onAvailable(Network network) {
+		                            try {
+		                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+		                                    manager.bindProcessToNetwork(network);
+		                                } else {
+		                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+		                                        //This method was deprecated in API level 23
+		                                        ConnectivityManager.setProcessDefaultNetwork(network);
+		                                    }
+		                                }
+		                                manager.unregisterNetworkCallback(this);
+		                            } catch (Exception e) {
+		                                e.printStackTrace();
+		                            }
+		                        }
+		                    });
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         } else {
@@ -247,18 +250,18 @@ public class AndroidWifiModule extends ReactContextBaseJavaModule {
 
     	// Quote ssid and password
 		conf.SSID = String.format("\"%s\"", ssid);
-	
+
     	WifiConfiguration tempConfig = this.IsExist(conf.SSID);
 		if (tempConfig != null) {
 			wifi.removeNetwork(tempConfig.networkId);
 		}
 
 		String capabilities = result.capabilities;
-		
+
     	// appropriate ciper is need to set according to security type used
 		if (capabilities.contains("WPA") || capabilities.contains("WPA2") || capabilities.contains("WPA/WPA2 PSK")) {
 
-			// This is needed for WPA/WPA2 
+			// This is needed for WPA/WPA2
 			// Reference - https://android.googlesource.com/platform/frameworks/base/+/refs/heads/master/wifi/java/android/net/wifi/WifiConfiguration.java#149
 			conf.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.OPEN);
 
@@ -274,7 +277,7 @@ public class AndroidWifiModule extends ReactContextBaseJavaModule {
 			conf.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
 			conf.status = WifiConfiguration.Status.ENABLED;
 			conf.preSharedKey = String.format("\"%s\"", password);
-      
+
 		} else if (capabilities.contains("WEP")) {
 			// This is needed for WEP
 			// Reference - https://android.googlesource.com/platform/frameworks/base/+/refs/heads/master/wifi/java/android/net/wifi/WifiConfiguration.java#149
@@ -328,14 +331,14 @@ public class AndroidWifiModule extends ReactContextBaseJavaModule {
 
 		return true;
 	}
-	
+
 	//add configuration of hidden network and return it's networkId
 	public int setWifiConfig(String ssid, String sharedKey) {
 		WifiConfiguration conf = new WifiConfiguration();
 
 		conf.SSID = "\"" + ssid + "\"";
 		conf.preSharedKey = "\"" + sharedKey + "\"";
-	
+
 		conf.hiddenSSID = true;
 		conf.status = WifiConfiguration.Status.ENABLED;
 		conf.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
@@ -345,7 +348,7 @@ public class AndroidWifiModule extends ReactContextBaseJavaModule {
 		conf.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
 		conf.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
 		conf.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
-	
+
 		return wifi.addNetwork(conf);
 	}
 
@@ -380,7 +383,7 @@ public class AndroidWifiModule extends ReactContextBaseJavaModule {
 			networkAdded.invoke(false);
 			return;
 		}
-		
+
 		// disconnect current network
 		boolean disconnect = wifi.disconnect();
 		if (!disconnect) {
@@ -394,7 +397,7 @@ public class AndroidWifiModule extends ReactContextBaseJavaModule {
 			networkAdded.invoke(false);
 			return;
 		}
-	
+
 		// reconnect to new network
 		boolean reconnect = wifi.reconnect();
 		if (!reconnect) {
@@ -540,7 +543,7 @@ public class AndroidWifiModule extends ReactContextBaseJavaModule {
 
 		// This method call when number of wifi connections changed
       	public void onReceive(Context c, Intent intent) {
-			
+
 			c.unregisterReceiver(this);
 
 			try {
